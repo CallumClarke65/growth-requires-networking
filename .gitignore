@@ -1,0 +1,4 @@
+.vscode
+*.tar
+slnx.sqlite
+.suo

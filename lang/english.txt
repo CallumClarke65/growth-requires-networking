@@ -1,0 +1,184 @@
+##### TOWN SIGN #####
+STR_TOWNSIGN_GROWTHRATE  :Growth : {NUM} {STRING}
+STR_TOWNSIGN_MONTHS      :months
+STR_TOWNSIGN_DAYS        :days
+STR_TOWNSIGN_MINUTES     :minutes
+STR_TOWNSIGN_SECONDS     :seconds
+STR_TOWNSIGN_NOTGROWING  :Not growing
+
+##### CARGO CATEGORIES #####
+STR_CARGOCAT_LABEL_0     :Public services
+STR_CARGOCAT_LABEL_1     :Raw food
+STR_CARGOCAT_LABEL_2     :Raw materials
+STR_CARGOCAT_LABEL_3     :Processed materials
+STR_CARGOCAT_LABEL_4     :Final products
+STR_CARGOCAT_LABEL_5     :Products
+STR_CARGOCAT_LABEL_6     :Local production
+STR_CARGOCAT_LABEL_7     :Imported goods
+STR_CARGOCAT_LABEL_8     :Category I
+STR_CARGOCAT_LABEL_9     :Category II
+STR_CARGOCAT_LABEL_10    :Category III
+STR_CARGOCAT_LABEL_11    :Category IV
+STR_CARGOCAT_LABEL_12    :Category V
+STR_CARGOCAT_LABEL_13    :Raw materials & food
+STR_CARGOCAT_LABEL_14    :Refined materials
+STR_CARGOCAT_LABEL_15    :Manufacturing components
+STR_CARGOCAT_LABEL_16    :Finished goods and vehicles
+
+##### STORY BOOK #####
+STR_SB_TITLE_1           :Cargo categories
+STR_SB_EXPLAIN_1         :These are the cargo categories for town requirements, each category including different cargo types. To achieve requirements for a category, you can deliver any cargo belonging to it.
+STR_SB_EXPLAIN_2         :These are the cargo categories for town requirements, each category including different cargo types. Each town has a selection of {STRING2} from each category. To achieve requirements for a category, you can deliver any cargo that the Town requires for that category as shown in the Town info window.
+STR_SB_EXPLAIN_RANDOM_0  :{SILVER}{NUM} cargo type{P "" s}{BLACK}{STRING}
+STR_SB_EXPLAIN_RANDOM_2  :{SILVER}{NUM} - {NUM} cargo types {BLACK}
+STR_SB_CARGOCAT_CAT      :Category
+STR_SB_CARGOCAT_POP      :Minimal town population
+STR_SB_CARGOCAT_DECAY    :Monthly decay
+STR_SB_CARGOCAT_CARGOT   :Cargo types
+STR_SB_CARGOCAT_0        :{STRING} {NUM} : {LTBLUE}{STRING}{BLACK}{}{STRING} : {SILVER}{NUM}{BLACK} {STRING} : {SILVER}{NUM}%{BLACK}{}{STRING} : {CARGO_LIST}
+STR_SB_CARGOCAT_1        :{STRING} {NUM} : {GREEN}{STRING}{BLACK}{}{STRING} : {SILVER}{NUM}{BLACK} {STRING} : {SILVER}{NUM}%{BLACK}{}{STRING} : {CARGO_LIST}
+STR_SB_CARGOCAT_2        :{STRING} {NUM} : {RED}{STRING}{BLACK}{}{STRING} : {SILVER}{NUM}{BLACK} {STRING} : {SILVER}{NUM}%{BLACK}{}{STRING} : {CARGO_LIST}
+STR_SB_CARGOCAT_3        :{STRING} {NUM} : {BROWN}{STRING}{BLACK}{}{STRING} : {SILVER}{NUM}{BLACK} {STRING} : {SILVER}{NUM}%{BLACK}{}{STRING} : {CARGO_LIST}
+STR_SB_CARGOCAT_4        :{STRING} {NUM} : {PURPLE}{STRING}{BLACK}{}{STRING} : {SILVER}{NUM}{BLACK} {STRING} : {SILVER}{NUM}%{BLACK}{}{STRING} : {CARGO_LIST}
+STR_SB_CARGOCAT_5        :{STRING} {NUM} : {YELLOW}{STRING}{BLACK}{}{STRING} : {SILVER}{NUM}{BLACK} {STRING} : {SILVER}{NUM}%{BLACK}{}{STRING} : {CARGO_LIST}
+STR_SB_WARNING_TITLE     :Warning
+STR_SB_WARNING_1         :There are more towns on the map than the game script can save. The current number of towns is {SILVER}{NUM}{BLACK} and the maximum is {SILVER}{NUM}{BLACK}. {RED}The game script is turned off.{BLACK}
+STR_SB_WARNING_2         :The cargo list initialization has failed. It was caused by an unknown industry newGRF for which a procedural cargo list creation was not possible. {RED}The game script is turned off.{BLACK}
+STR_SB_WARNING_3         :The cargo list initialization has failed. It was caused by the industry randomization option for which the procedural industry categories could not be created. {RED}The game script is turned off.{BLACK}
+STR_SB_WARNING_4         :You must set parameter {ORANGE}Environment->Towns->Town growth speed{BLACK} to something other than None. {RED}The game script is turned off.{BLACK}
+STR_SB_WELCOME_TITLE     :Renewed Village Growth {NUM}.{NUM}
+STR_SB_WELCOME_DESC      :{SILVER}Renewed Village Growth (RVG){BLACK} is a game script which {ORANGE}changes the way towns grow{BLACK} in OpenTTD. Various cargo requirements are defined for each town that need to be - partially or completely - monthly satisfied to make the towns grow faster. More information can be found in the {ORANGE}Readme file{BLACK}.
+STR_SB_WELCOME_CARGO     :Economy {SILVER}{STRING}{BLACK} consists of {SILVER}{NUM} categories{BLACK}. To fulfill a category, deliver one or more of the category specific cargos to a {ORANGE}station near the town which accepts that cargo type{BLACK}. Fulfill the requirements above {SILVER}{NUM}%{BLACK} to {ORANGE}make the towns grow faster{BLACK}. More information about cargo categories are shown in the {ORANGE}Cargo categories story book page{BLACK}.
+STR_SB_WELCOME_LIMIT_GROWTH         :{SILVER}{CARGO_LIST}{BLACK} from that town can {ORANGE}stop the town growth{BLACK}. Transport at least {SILVER}{NUM}%{BLACK} of those cargo types to {ORANGE}allow town growth{BLACK}. {STRING1}
+STR_SB_WELCOME_LIMIT_GROWTH_DELAY   :The growth stops after {SILVER}{NUM} months{BLACK} of not fulfilling this requirement.
+STR_SB_WELCOME_STATISTICS           :Company providing the majority of cargo to a town becomes its {ORANGE}Contributor{BLACK}. Every new population above largest population of that town is counted towards {ORANGE}growth points{BLACK} of that company. See the growth points and statistics in the {ORANGE}Goal list{BLACK}.
+STR_SB_WELCOME_ETERNAL_LOVE         :{SILVER}Eternal Love{BLACK} changes {ORANGE}local authority rating{BLACK} of each town once per month to at least {SILVER}{STRING}{BLACK}.
+STR_SB_WELCOME_END                  :Have fun!
+
+##### CUSTOM STORY BOOK #####
+STR_SB_CUSTOM_WELCOME       :Please find the server rules in the {ORANGE}{STRING} story book page{BLACK}.
+STR_SB_CUSTOM_TITLE         :Server rules
+# STR_SB_CUSTOM_1             :Rule 1
+# STR_SB_CUSTOM_2             :Rule 2
+STR_SB_CUSTOM_END           :
+
+##### GOAL #####
+STR_STATISTICS_GROWTH_POINTS    :{STRING}{COMPANY}{BLACK} growth points{ORANGE}
+STR_STATISTICS_BIGGEST_TOWN     :{BLACK}Biggest town {SILVER}{TOWN}{ORANGE}
+STR_STATISTICS_GROWTH_TOWN      :{BLACK}Fastest growing town in days {SILVER}{TOWN}{ORANGE}
+STR_STATISTICS_AVERAGE_CATEGORY :{BLACK}Average town category{ORANGE}
+STR_STATISTICS_NUM_TOWNS        :{BLACK}Number of contributed towns{ORANGE}
+STR_STATISTICS_NOT_GROWING      :{BLACK}Number of not growing towns{ORANGE}
+
+##### TOWNBOX #####
+STR_TOWNBOX_CONTRIBUTOR         :Largest population {SILVER}{NUM}{BLACK}{} * {SILVER}{COMPANY}{BLACK}
+STR_TOWNBOX_NO_CONTRIBUTOR      :Largest population {SILVER}{NUM}{BLACK}{STRING}
+
+STR_TOWNBOX_CATEGORY            :Cargo information : available / required{STRING}
+STR_TOWNBOX_CATEGORY_STOP       :Not enough transported out of town :{} * {RED}{CARGO_LIST}{BLACK}{}Cargo information : available / required
+STR_TOWNBOX_CATEGORY_LOW        :Insufficient infrastructure of transportation :{} * {SILVER}{CARGO_LIST}{BLACK}{}Cargo information : available / required
+STR_TOWNBOX_CATEGORY_DELAYED    :Not enough transported out of town :{} * {GOLD}{CARGO_LIST}{BLACK}{}Cargo information : available / required
+STR_TOWNBOX_CARGO               :Cargo categories :{STRING}
+STR_TOWNBOX_CARGO_STOP          :Not enough transported out of town :{} * {RED}{CARGO_LIST}{BLACK}{}Cargo categories :
+STR_TOWNBOX_CARGO_LOW           :Insufficient infrastructure of transportation :{} * {SILVER}{CARGO_LIST}{BLACK}{}Cargo categories :
+STR_TOWNBOX_CARGO_DELAYED       :Not enough transported out of town :{} * {GOLD}{CARGO_LIST}{BLACK}{}Cargo categories :
+STR_TOWNBOX_NOGROWTH            :Transport {SILVER}{CARGO_LIST}{BLACK} from this town to make it grow.
+
+STR_TOWNBOX_CATEGORY_0          :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+STR_TOWNBOX_CATEGORY_1          :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {GREEN}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+STR_TOWNBOX_CATEGORY_2          :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {GREEN}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {RED}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+STR_TOWNBOX_CATEGORY_3          :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {GREEN}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {RED}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {BROWN}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+STR_TOWNBOX_CATEGORY_4          :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {GREEN}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {RED}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {BROWN}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {PURPLE}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+STR_TOWNBOX_CATEGORY_5          :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {GREEN}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {RED}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {BROWN}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {PURPLE}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {YELLOW}{STRING}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+
+STR_TOWNBOX_CARGO_0             :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}
+STR_TOWNBOX_CARGO_1             :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {GREEN}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}
+STR_TOWNBOX_CARGO_2             :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {GREEN}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {RED}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}
+STR_TOWNBOX_CARGO_3             :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {GREEN}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {RED}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {BROWN}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}
+STR_TOWNBOX_CARGO_4             :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {GREEN}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {RED}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {BROWN}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {PURPLE}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}
+STR_TOWNBOX_CARGO_5             :{STRING2}{}{STRING1}{} * {LTBLUE}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {GREEN}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {RED}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {BROWN}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {PURPLE}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}{} * {YELLOW}{STRING}{BLACK} : {SILVER}{CARGO_LIST}{BLACK}
+
+STR_TOWNBOX_COMBINED_0          :{STRING2}{}{STRING1}{} * {LTBLUE}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+STR_TOWNBOX_COMBINED_1          :{STRING2}{}{STRING1}{} * {LTBLUE}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {GREEN}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+STR_TOWNBOX_COMBINED_2          :{STRING2}{}{STRING1}{} * {LTBLUE}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {GREEN}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {RED}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+STR_TOWNBOX_COMBINED_3          :{STRING2}{}{STRING1}{} * {LTBLUE}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {GREEN}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {RED}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {BROWN}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+STR_TOWNBOX_COMBINED_4          :{STRING2}{}{STRING1}{} * {LTBLUE}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {GREEN}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {RED}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {BROWN}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {PURPLE}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+STR_TOWNBOX_COMBINED_5          :{STRING2}{}{STRING1}{} * {LTBLUE}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {GREEN}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {RED}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {BROWN}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {PURPLE}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}{} * {YELLOW}{CARGO_LIST}{BLACK} : {SILVER}{RAW_STRING}{BLACK}
+
+##### ECONOMIES #####
+STR_ECONOMY_NONE                :
+STR_ECONOMY_BASESET_TEMPERATE   :Base Temperate
+STR_ECONOMY_BASESET_ARCTIC      :Base Arctic
+STR_ECONOMY_BASESET_TROPICAL    :Base Tropical
+STR_ECONOMY_BASESET_TOYLAND     :Base Toyland
+STR_ECONOMY_FIRS1_FIRS          :FIRS 1 FIRS
+STR_ECONOMY_FIRS1_TEMPERATE     :FIRS 1 Temperate
+STR_ECONOMY_FIRS1_ARCTIC        :FIRS 1 Arctic
+STR_ECONOMY_FIRS1_TROPIC        :FIRS 1 Tropic
+STR_ECONOMY_FIRS1_HOD           :FIRS 1 Hearth Of Darkness
+STR_ECONOMY_ECS                 :ECS
+STR_ECONOMY_FIRS2_TEMPERATE     :FIRS 1 Temperate
+STR_ECONOMY_FIRS2_ARCTIC        :FIRS 1 Arctic
+STR_ECONOMY_FIRS2_TROPIC        :FIRS 1 Tropic
+STR_ECONOMY_FIRS2_IAHC          :FIRS 1 In A Hot Country
+STR_ECONOMY_FIRS2_HOD           :FIRS 1 Hearth Of Darkness
+STR_ECONOMY_YETI                :YETI
+STR_ECONOMY_FIRS3_TEMPERATE     :FIRS 3 Temperate
+STR_ECONOMY_FIRS3_ARCTIC        :FIRS 3 Arctic
+STR_ECONOMY_FIRS3_TROPIC        :FIRS 3 Tropic
+STR_ECONOMY_FIRS3_STEELTOWN     :FIRS 3 Steeltown
+STR_ECONOMY_FIRS3_IAHC          :FIRS 3 In A Hot Country
+STR_ECONOMY_FIRS3_EXTREME       :FIRS 3 Extreme
+STR_ECONOMY_NAIS_NA             :NAIS North America
+STR_ECONOMY_ITI                 :Improved Town Industries
+STR_ECONOMY_FIRS4_TEMPERATE     :FIRS 4 Temperate
+STR_ECONOMY_FIRS4_ARCTIC        :FIRS 4 Arctic
+STR_ECONOMY_FIRS4_TROPIC        :FIRS 4 Tropic
+STR_ECONOMY_FIRS4_STEELTOWN     :FIRS 4 Steeltown
+STR_ECONOMY_FIRS4_IAHC          :FIRS 4 In A Hot Country
+STR_ECONOMY_FIRS5_TEMPERATE     :FIRS 5 Temperate
+STR_ECONOMY_FIRS5_ARCTIC        :FIRS 5 Arctic
+STR_ECONOMY_FIRS5_TROPIC        :FIRS 5 Tropic
+STR_ECONOMY_FIRS5_STEELTOWN     :FIRS 5 Steeltown
+STR_ECONOMY_FIRS5_IAHC          :FIRS 5 In A Hot Country
+STR_ECONOMY_XIS_LOT             :XIS The Lot
+STR_ECONOMY_AXIS_STEELTOWN      :AXIS Steel City
+STR_ECONOMY_AXIS_TROPICAL       :AXIS Tropical Paradise
+STR_ECONOMY_OTIS                :OTIS
+STR_ECONOMY_IOTC                :Industries of the Caribbean
+STR_ECONOMY_LUMBERJACK          :Lumberjack Industries
+STR_ECOMONY_WRBI                :Wannaroo Basic Industries
+STR_ECONOMY_ITI2                :Improved Town Industries
+STR_ECONOMY_REAL                :Real Industries
+STR_ECONOMY_MINIMALIST          :Minimalist Industries
+STR_ECONOMY_PIRS                :Pikka's Industries Redux Set (PIRS 2022)
+
+##### ETERNAL LOVE #####
+STR_ETERNAL_LOVE_OUTSTANDING    :outstanding
+STR_ETERNAL_LOVE_GOOD           :good
+STR_ETERNAL_LOVE_POOR           :poor
+
+##### UTILITY #####
+STR_COMMA                       :{SILVER}{COMMA}{ORANGE}
+STR_NUM                         :{SILVER}{NUM}{ORANGE}
+
+STR_DARK_BLUE                   :{DKBLUE}
+STR_PALE_GREEN                  :{LTBROWN}
+STR_PINK                        :{GOLD}
+STR_YELLOW                      :{YELLOW}
+STR_RED                         :{RED}
+STR_LIGHT_BLUE                  :{LTBLUE}
+STR_GREEN                       :{GREEN}
+STR_DARK_GREEN                  :{DKGREEN}
+STR_BLUE                        :{BLUE}
+STR_CREAM                       :{CREAM}
+STR_MAUVE                       :{BLACK}
+STR_PURPLE                      :{PURPLE}
+STR_ORANGE                      :{ORANGE}
+STR_BROWN                       :{BROWN}
+STR_GREY                        :{GRAY}
+STR_WHITE                       :{WHITE}
+STR_SILVER                      :{SILVER}
+
+STR_EMPTY                       :
+STR_STRING                      :{STRING}

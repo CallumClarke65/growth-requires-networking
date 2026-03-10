@@ -1,0 +1,6 @@
+*** Growth Requires Networking GS Changelog ***
+
+Forked from Renewed Village Growth @ v12.1 (2025/07/12)
+
+Version 1.0 (2026/03/08)
+- tbc

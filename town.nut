@@ -102,102 +102,6 @@ function GoalTown::MonthlyManageTown() {
 
 	Log.Info("MonthlyManageTown " + GSTown.GetName(this.id), Log.LVL_INFO);
 
-	/*
-	local sum_goals = 0;
-	local goal_diff = 0;
-	local goal_diff_percent = 0.0;
-	local cur_pop = GSTown.GetPopulation(this.id);
-	local parsed_cat = 0;   // index of parsed category
-	local new_town_growth_rate = null;
-	// Defining difficulty and calculation factors
-	local d_factor = GSController.GetSetting("goal_scale_factor") / 100.0;
-	local g_factor = GSController.GetSetting("town_growth_factor");
-	local e_factor = GSController.GetSetting("exponentiality_factor");
-	local sup_imp_part = GSController.GetSetting("supply_impacting_part") / 100.0;
-	local lowest_tgr = GSController.GetSetting("lowest_town_growth_rate");
-	local allow_0_days_growth = GSController.GetSetting("allow_0_days_growth");
-	// Clearing the arrays
-	this.town_supplied_cat = array(::CargoCatNum, 0);
-	this.town_goals_cat = array(::CargoCatNum, 0);
-
-	// Allow small towns to grow
-	if (GSTown.GetPopulation(this.id) < 100) {
-	    GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NORMAL);
-	    return;
-	}
-
-	// Check whether specific cargo goals have been enabled for tropical towns growing over 60
-	if (GSGameSettings.GetValue("game_creation.landscape") == 2
-	    && GSTown.GetCargoGoal(this.id, GSCargo.TE_WATER) != 0) {
-	    GSTown.SetCargoGoal(this.id, GSCargo.TE_WATER, 0);
-	    GSTown.SetCargoGoal(this.id, GSCargo.TE_FOOD, 0);
-	}
-
-	// Checking whether we should enable or disable town monitoring
-	if (!this.CheckMonitoring(this.is_monitored)) return;
-
-	// Calculate supplied cargo
-	local companies_supplied = {};
-	foreach (index, category in this.town_cargo_cat) {
-	    for (local cid = GSCompany.COMPANY_FIRST; cid <= GSCompany.COMPANY_LAST; cid++) {
-	        if (GSCompany.ResolveCompanyID(cid) == GSCompany.COMPANY_INVALID)
-	            continue;
-
-	        if (!companies_supplied.rawin(cid))
-	            companies_supplied[cid] <- [];
-
-	        local category_supplied = 0;
-	        foreach (cargo in category) {
-	            local cargo_supplied = GSCargoMonitor.GetTownDeliveryAmount(cid, cargo, this.id, true);
-	            category_supplied += cargo_supplied < 0 ? 0 : cargo_supplied;
-	        }
-
-	        this.town_supplied_cat[index] += category_supplied;
-	        companies_supplied[cid].append(category_supplied);
-	    }
-	}
-
-	// Calculating goals
-	for (local i = 0; i < CargoCatNum && cur_pop > ::CargoMinPopDemand[i]; i++) {
-	    this.town_goals_cat[i] = max((((cur_pop  - ::CargoMinPopDemand[i]).tofloat() / 1000)
-	                    * ::CargoPermille[i]
-	                    * d_factor).tointeger(),1);
-	}
-
-	// If town's population is too low to calculate a goal, it is set to 1
-	if (this.town_goals_cat[0] < 1) this.town_goals_cat[0] = 1;
-
-	// Get max category
-	local max_cat = 1;
-	while (max_cat < ::CargoCatNum) {
-	    if (this.town_goals_cat[max_cat] == 0) break;
-	    max_cat++;
-	}
-
-	// Calculating global goal and achievement
-	for (local i = 0; i < CargoCatNum; ++i) {
-	    if (this.town_goals_cat[i] <= 0) {
-	        this.town_stockpiled_cat[i] = 0;
-	        continue;
-	    }
-
-	    this.town_supplied_cat[i] += this.town_stockpiled_cat[i];
-
-	    if (this.town_supplied_cat[i] < this.town_goals_cat[i]) {
-	        goal_diff_percent += (this.town_goals_cat[i] - this.town_supplied_cat[i]).tofloat() / (this.town_goals_cat[i] * max_cat).tofloat();
-	        this.town_stockpiled_cat[i] = 0;
-	    } else {
-	        // If stockpiled is bigger than required, we cut off the required part
-	        this.town_stockpiled_cat[i] = ((this.town_supplied_cat[i] - this.town_goals_cat[i])
-	                         * (1 - ::CargoDecay[i])).tointeger();
-	        // Don't stockpile more than: (cargo category) * 10;
-	        if (this.town_stockpiled_cat[i] > 300 &&
-	            this.town_stockpiled_cat[i] > this.town_goals_cat[i] * 10) {
-	            this.town_stockpiled_cat[i] = this.town_goals_cat[i] * 10;
-	        }
-	    }
-	}
-	*/
 
 	if (this.allowGrowth) {
 		GSTown.SetGrowthRate(this.id, this.tgr_average);
@@ -206,9 +110,59 @@ function GoalTown::MonthlyManageTown() {
 	}
 
 	this.UpdateSignText();
-	GSTown.SetText(this.id, this.TownBoxText(true, GSController.GetSetting("town_info_mode"), true));
+	GSTown.SetText(this.id, this.TownBoxTexxt(true, GSController.GetSetting("town_info_mode"), true));
 }
 
+function GoalTown::GetDeliveredCargoTotals()
+{
+    local cargos = [
+        "BEER",
+        "GOOD",
+        "FOOD",
+        "BDMT",
+        "PETR"
+    ];
+
+    local totals = {};
+    local total_all = 0;
+
+    foreach (c in cargos) {
+        local cargo_id = GSCargo.GetCargoID(c);
+        if (cargo_id == -1) continue;
+
+        local amount = GSTown.GetLastMonthTransported(this.id, cargo_id);
+        totals[c] <- amount;
+        total_all += amount;
+    }
+
+    totals["TOTAL"] <- total_all;
+    return totals;
+}
+
+function GoalTown::TownBoxTexxt(show_stats, mode, monthly)
+{
+    local t = GSTown.GetName(this.id);
+
+    if (!show_stats) {
+        return "{WHITE}" + t;
+    }
+
+    local cargo = this.GetDeliveredCargoTotals();
+
+    local text = "";
+    text += "{WHITE}" + t + "\n";
+    text += "{SILVER}Delivered last month\n";
+
+    text += "{YELLOW}BEER: {WHITE}" + cargo["BEER"] + "\n";
+    text += "{LTBLUE}GOODS: {WHITE}" + cargo["GOOD"] + "\n";
+    text += "{GREEN}FOOD: {WHITE}" + cargo["FOOD"] + "\n";
+    text += "{ORANGE}BDMT: {WHITE}" + cargo["BDMT"] + "\n";
+    text += "{BROWN}PETR: {WHITE}" + cargo["PETR"] + "\n";
+
+    text += "{GOLD}TOTAL: {WHITE}" + cargo["TOTAL"];
+
+    return text;
+}
 
 function GoalTown::EternalLove(rating) {
 	for (local c = GSCompany.COMPANY_FIRST; c <= GSCompany.COMPANY_LAST; c++) {

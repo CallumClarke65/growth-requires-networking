@@ -95,27 +95,28 @@ function GoalTown::MonthlyManageTown() {
 	// Finish initialization of the town
 	if (!this.initialized) {
 		GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
-		GSTown.SetText(this.id, TownBoxText(false, 0));
+		GSTown.SetText(this.id, TownBoxText());
 		this.initialized = true;
 		return;
 	}
 
 	Log.Info("MonthlyManageTown " + GSTown.GetName(this.id), Log.LVL_INFO);
 
-
+	/*
 	if (this.allowGrowth) {
 		GSTown.SetGrowthRate(this.id, this.tgr_average);
 	} else {
 		GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
 	}
+		*/
 
-	this.UpdateSignText();
-	GSTown.SetText(this.id, this.TownBoxTexxt(true, GSController.GetSetting("town_info_mode"), true));
+	//this.UpdateSignText();
+	GSTown.SetText(this.id, this.TownBoxText());
 }
 
 function GoalTown::GetDeliveredCargoTotals()
 {
-    local cargos = [
+    local cargo_strings = [
         "BEER",
         "GOOD",
         "FOOD",
@@ -126,43 +127,81 @@ function GoalTown::GetDeliveredCargoTotals()
     local totals = {};
     local total_all = 0;
 
-    foreach (c in cargos) {
-        local cargo_id = GSCargo.GetCargoID(c);
-        if (cargo_id == -1) continue;
-
-        local amount = GSTown.GetLastMonthTransported(this.id, cargo_id);
-        totals[c] <- amount;
-        total_all += amount;
+    foreach (c in cargo_strings) {
+		local cargo_total = 0;
+        for (local cid = GSCompany.COMPANY_FIRST; cid <= GSCompany.COMPANY_LAST; cid++) {
+        	if (GSCompany.ResolveCompanyID(cid) == GSCompany.COMPANY_INVALID) {
+				continue;
+			}
+			local company_supplied = GSCargoMonitor.GetTownDeliveryAmount(cid, GetCargoIDFromLabel(c), this.id, true);
+            cargo_total += company_supplied < 0 ? 0 : company_supplied;
+		}
+        totals[c] <- cargo_total;
+        total_all += cargo_total;
     }
 
     totals["TOTAL"] <- total_all;
     return totals;
 }
 
-function GoalTown::TownBoxTexxt(show_stats, mode, monthly)
+function GoalTown::TownBoxText()
 {
     local t = GSTown.GetName(this.id);
 
-    if (!show_stats) {
-        return "{WHITE}" + t;
-    }
-
     local cargo = this.GetDeliveredCargoTotals();
 
-    local text = "";
-    text += "{WHITE}" + t + "\n";
-    text += "{SILVER}Delivered last month\n";
+	local cargo_strings = [
+        "BEER",
+        "GOOD",
+        "FOOD",
+        "BDMT",
+        "PETR"
+    ];
 
-    text += "{YELLOW}BEER: {WHITE}" + cargo["BEER"] + "\n";
-    text += "{LTBLUE}GOODS: {WHITE}" + cargo["GOOD"] + "\n";
-    text += "{GREEN}FOOD: {WHITE}" + cargo["FOOD"] + "\n";
-    text += "{ORANGE}BDMT: {WHITE}" + cargo["BDMT"] + "\n";
-    text += "{BROWN}PETR: {WHITE}" + cargo["PETR"] + "\n";
+	local text = GSText(GSText.STR_FULL_DISPLAY);
+	text.AddParam(GSText(GSText.STR_DELIVERY_HISTORY));
+	text.AddParam(GSText(GSText["STR_DELIVERY_TOTAL"], cargo["TOTAL"]));
 
-    text += "{GOLD}TOTAL: {WHITE}" + cargo["TOTAL"];
+
+	foreach (c in cargo_strings) {
+		text.AddParam(GSText(GSText["STR_DELIVERY_" + c], cargo[c]));
+	}
 
     return text;
 }
+
+/*
+Cargo Goal: 50/240
+
+Growth limit: 1000 (X cargos provided)
+
+Delivery History (6 months):
+Total - 50/48/27/73/0/0
+Alcohol - ✓X✓✓✓✓
+Goods - ✓✓✓✓✓✓
+Food - ✓X✓✓✓✓
+Building Materials - XXXXXX
+Petrol - ✓X✓X✓X
+*/
+
+
+/*
+Population: X Houses: Y
+Passengers last month: X max: Y
+Mail last month: X max: Y
+Town is NOT growing
+
+Connect a passenger service to X to enable growth
+*/
+
+/*
+Population: X Houses: Y
+Passengers last month: X max: Y
+Mail last month: X max: Y
+Town is NOT growing
+
+Place X's HQ to enable growth mechanics
+*/
 
 function GoalTown::EternalLove(rating) {
 	for (local c = GSCompany.COMPANY_FIRST; c <= GSCompany.COMPANY_LAST; c++) {
@@ -182,7 +221,7 @@ function GoalTown::EternalLove(rating) {
 	}
 }
 
-function GoalTown::UpdateSignText() {
+function GoalTown::UpdateSignTexxt() {
 	// Add a sign by the town to display the current growth
     /*
 	if (::SettingsTable.use_town_sign) {
@@ -203,10 +242,23 @@ function GoalTown::RemoveSignText() {
 		this.sign_id = -1;
 	}
 
-	GSTown.SetText(this.id, this.TownBoxText(false, 0));
+	GSTown.SetText(this.id, this.TownBoxText());
 }
 
 
 function GoalTown::UpdateTownText(info_mode) {
-	GSTown.SetText(this.id, this.TownBoxText(true, info_mode));
+	GSTown.SetText(this.id, this.TownBoxText());
+}
+
+function GetCargoIDFromLabel(label)
+{
+    local cargos = GSCargoList();
+
+    for (local c = cargos.Begin(); !cargos.IsEnd(); c = cargos.Next()) {
+        if (GSCargo.GetCargoLabel(c) == label) {
+            return c;
+        }
+    }
+
+    return -1;
 }

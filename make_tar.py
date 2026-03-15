@@ -16,7 +16,7 @@ from pathlib import Path
 gs_name = "Growth_Requires_Networking_2"
 
 # Directory where the final tar should go
-GSdir = r"C:\Users\Callum-Home\Documents\OpenTTD\game"
+GSdir = r"C:\Users\callu\Documents\OpenTTD\game"
 
 # ----------------------------------
 

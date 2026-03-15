@@ -233,11 +233,13 @@ function MainClass::Save() {
 		save_table.town_data_table <- ::TownDataTable;
 	} else {
 		// Save permanent settings (allows changing them in scenario editor)
+		/*
 		save_table.use_town_sign <- ::SettingsTable.use_town_sign;
 		save_table.randomization <- ::SettingsTable.randomization;
 		save_table.display_cargo <- ::SettingsTable.display_cargo;
 		save_table.cargo_6_category <- ::SettingsTable.cargo_6_category;
 		save_table.category_min_pop <- ::SettingsTable.category_min_pop;
+		*/
 
 		foreach(company in this.companies) {
 			save_table.company_data_table[company.id] <- company.SavingCompanyData();

@@ -1,4 +1,4 @@
-function GoalTown::TownBoxText(growth_enabled, text_mode, redraw=false)
+function GoalTown::TownBoxTexxt(growth_enabled, text_mode, redraw=false)
 {
     local text_townbox = null;
 
@@ -186,7 +186,7 @@ function GoalTown::TownTextCargos(display_all)
 }
 
 /* Building the text for towns' signtexts. */
-function GoalTown::TownSignText()
+function GoalTown::TownSignTexxt()
 {
     local text_townsign = null;
     if (GSTown.GetGrowthRate(this.id) > 880) {

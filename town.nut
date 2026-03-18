@@ -5,10 +5,12 @@
 class GoalTown {
 	id = null; // Town id
 	sign_id = null; // Id for extra text under town name
-	town_goals_cat = null; // Town goals per cargo category
-	town_supplied_cat = null; // Last monthly supply per cargo category (for categories: see InitCargoLists())
+	cargo_goal = null; // Goal amount for growth next month
+	total_cargo_supplied_6_months = null; // Array with the amount of cargo supplied in the last 6 months
+	types_cargo_supplied_6_months = null; // Array with the types of cargo supplied in the last 6 months
+	types_cargo_count = null; // Number of unique final products supplied last month
+	growthLimit = null; // Max population we can grow to with the current variety of cargo supplied
 
-	allowGrowth = null; // limits growth requirement fulfilled
 	initialized = null; // Town is fully initialized
 
 	constructor(town_id, load_town_data) {
@@ -19,12 +21,26 @@ class GoalTown {
 		 */
 		if (!load_town_data || this.id >= ::TownDataTable.len()) {
 			this.sign_id = -1;
-			//this.town_goals_cat = array(::CargoCatNum, 0);
-			//this.town_supplied_cat = array(::CargoCatNum, 0);
-
-			this.allowGrowth = false;
 
 			this.DisableOrigCargoGoal();
+
+			this.cargo_goal = this.SetCargoGoal();
+			this.total_cargo_supplied_6_months = [0, 0, 0, 0, 0, 0];
+			this.types_cargo_supplied_6_months = {};
+			this.types_cargo_count = 0;
+			this.growthLimit = 0;
+
+			local cargo_strings = [
+				"BEER",
+				"GOOD",
+				"FOOD",
+				"BDMT",
+				"PETR"
+			];
+
+			foreach (c in cargo_strings) {
+				this.types_cargo_supplied_6_months[c] <- [false, false, false, false, false, false];
+			}
 
 			// These commands require at least all non-construcion actions during pause allowed
 			if (GSGameSettings.GetValue("construction.command_pause_level") >= 1) {
@@ -35,10 +51,10 @@ class GoalTown {
 				this.initialized = false;
 		} else {
 			this.sign_id = ::TownDataTable[this.id].sign_id;
-			this.town_goals_cat = ::TownDataTable[this.id].town_goals_cat;
-			this.town_supplied_cat = ::TownDataTable[this.id].town_supplied_cat;
+			this.cargo_goal = ::TownDataTable[this.id].cargo_goal;
+			this.total_cargo_supplied_6_months = ::TownDataTable[this.id].total_cargo_supplied_6_months;
+			this.growthLimit = ::TownDataTable[this.id].growthLimit;
 
-			this.UpdateTownText(GSController.GetSetting("town_info_mode"));
 			this.initialized = true;
 		}
 	}
@@ -100,74 +116,157 @@ function GoalTown::MonthlyManageTown() {
 		return;
 	}
 
-	Log.Info("MonthlyManageTown " + GSTown.GetName(this.id), Log.LVL_INFO);
+	// First get this month's stats
+	this.UpdateDeliveredCargoTotals();
 
-	/*
-	if (this.allowGrowth) {
-		GSTown.SetGrowthRate(this.id, this.tgr_average);
-	} else {
-		GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
-	}
-		*/
+	// Now use the new stats to calculate whether the town should allow growth or not, and update the sign text if needed
+	this.DoGrowthCheck();
 
-	//this.UpdateSignText();
-	GSTown.SetText(this.id, this.TownBoxText());
+	// Update the new cargo goal for the next month
+	this.SetCargoGoal();
+
+	// Finally, update display
+	this.UpdateTownText();
 }
 
-function GoalTown::GetDeliveredCargoTotals()
-{
-    local cargo_strings = [
-        "BEER",
-        "GOOD",
-        "FOOD",
-        "BDMT",
-        "PETR"
-    ];
+function GoalTown::UpdateDeliveredCargoTotals() {
+	local cargo_strings = [
+		"BEER",
+		"GOOD",
+		"FOOD",
+		"BDMT",
+		"PETR"
+	];
 
-    local totals = {};
-    local total_all = 0;
+	// Update the history arrays
+	for (local i = 5; i > 0; i--) {
+		this.total_cargo_supplied_6_months[i] = this.total_cargo_supplied_6_months[i - 1];
+		foreach(c in cargo_strings) {
+			this.types_cargo_supplied_6_months[c][i] = this.types_cargo_supplied_6_months[c][i - 1];
+		}
+	}
 
-    foreach (c in cargo_strings) {
+	// Loop through each cargo and then each company to get the total amount of cargo delivered to the town in the last month
+	local totals = {};
+	local total_all = 0;
+	foreach(c in cargo_strings) {
 		local cargo_total = 0;
-        for (local cid = GSCompany.COMPANY_FIRST; cid <= GSCompany.COMPANY_LAST; cid++) {
-        	if (GSCompany.ResolveCompanyID(cid) == GSCompany.COMPANY_INVALID) {
+		for (local cid = GSCompany.COMPANY_FIRST; cid <= GSCompany.COMPANY_LAST; cid++) {
+			if (GSCompany.ResolveCompanyID(cid) == GSCompany.COMPANY_INVALID) {
 				continue;
 			}
 			local company_supplied = GSCargoMonitor.GetTownDeliveryAmount(cid, GetCargoIDFromLabel(c), this.id, true);
-            cargo_total += company_supplied < 0 ? 0 : company_supplied;
+			cargo_total += company_supplied < 0 ? 0 : company_supplied;
 		}
-        totals[c] <- cargo_total;
-        total_all += cargo_total;
-    }
-
-    totals["TOTAL"] <- total_all;
-    return totals;
-}
-
-function GoalTown::TownBoxText()
-{
-    local t = GSTown.GetName(this.id);
-
-    local cargo = this.GetDeliveredCargoTotals();
-
-	local cargo_strings = [
-        "BEER",
-        "GOOD",
-        "FOOD",
-        "BDMT",
-        "PETR"
-    ];
-
-	local text = GSText(GSText.STR_FULL_DISPLAY);
-	text.AddParam(GSText(GSText.STR_DELIVERY_HISTORY));
-	text.AddParam(GSText(GSText["STR_DELIVERY_TOTAL"], cargo["TOTAL"]));
-
-
-	foreach (c in cargo_strings) {
-		text.AddParam(GSText(GSText["STR_DELIVERY_" + c], cargo[c]));
+		totals[c] <- cargo_total;
+		total_all += cargo_total;
+		types_cargo_supplied_6_months[c][0] = cargo_total > 0;
 	}
 
-    return text;
+	this.total_cargo_supplied_6_months[0] = total_all;
+}
+
+function GoalTown::DoGrowthCheck() {
+	local cargo_strings = [
+		"BEER",
+		"GOOD",
+		"FOOD",
+		"BDMT",
+		"PETR"
+	];
+
+	// Did we meet the cargo goal for this month?
+	if (this.total_cargo_supplied_6_months[0] < this.cargo_goal) {
+		GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
+		return;
+	}
+
+	// Check how many unique final products were supplied in the last month
+	local unique_cargos = 0;
+	foreach(c in cargo_strings) {
+		if (this.types_cargo_supplied_6_months[c][0]) {
+			unique_cargos++;
+		}
+	}
+	this.types_cargo_count = unique_cargos;
+
+	// Is our growth limited by the number of different cargos supplied?
+	switch (unique_cargos) {
+		case 0:
+			this.growthLimit = GSController.GetSetting("growth_limit_0_cargos");
+			break;
+		case 1:
+			this.growthLimit = GSController.GetSetting("growth_limit_1_cargos");
+			break;
+		case 2:
+			this.growthLimit = GSController.GetSetting("growth_limit_2_cargos");
+			break;
+		case 3:
+			this.growthLimit = GSController.GetSetting("growth_limit_3_cargos");
+			break;
+		case 4:
+			this.growthLimit = GSController.GetSetting("growth_limit_4_cargos");
+			break;
+		default:
+			this.growthLimit = -1; // No growth limit
+			break;
+	}
+
+	// If we are under the growth limit, or growth is not limited, allow growth. Otherwise, disable it.
+	if (this.growthLimit == -1 || GSTown.GetPopulation(this.id) < this.growthLimit) {
+		GSTown.SetGrowthRate(this.id, GSController.GetSetting("growth_rate"));
+	} else {
+		GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
+	}
+}
+
+function GoalTown::SetCargoGoal() {
+	local cargo_goal_per_thousand = GSController.GetSetting("goal_per_thousand_pop");
+	this.cargo_goal = (cargo_goal_per_thousand * GSTown.GetPopulation(this.id)) / 1000;
+}
+
+
+function GoalTown::TownBoxText() {
+	local t = GSTown.GetName(this.id);
+
+	local cargo_strings = [
+		"BEER",
+		"GOOD",
+		"FOOD",
+		"BDMT",
+		"PETR"
+	];
+
+	local text = GSText(GSText.STR_FULL_DISPLAY);
+
+	text.AddParam(GSText(GSText["STR_CARGO_DELIVERED"], this.total_cargo_supplied_6_months[0], this.cargo_goal)); // Cargo Goal: X / Y
+	text.AddParam(GSText(GSText["STR_GROWTH_LIMIT"], this.growthLimit, this.types_cargo_count)); // Growth limit: X (Y cargos provided)
+
+	text.AddParam(GSText(GSText.STR_DELIVERY_HISTORY));
+	text.AddParam(GSText(GSText["STR_DELIVERY_TOTAL"], this.total_cargo_supplied_6_months[0], this.total_cargo_supplied_6_months[1], this.total_cargo_supplied_6_months[2], this.total_cargo_supplied_6_months[3], this.total_cargo_supplied_6_months[4], this.total_cargo_supplied_6_months[5])); // Total - X/X/X/X/X/X
+
+
+	foreach(c in cargo_strings) {
+		// Translate our boolean values into checkmarks and crossmarks for display
+		local cargo_delivered_0 = this.types_cargo_supplied_6_months[c][0] ? GSText.STR_CHECKMARK : GSText.STR_CROSSMARK;
+		local cargo_delivered_1 = this.types_cargo_supplied_6_months[c][1] ? GSText.STR_CHECKMARK : GSText.STR_CROSSMARK;
+		local cargo_delivered_2 = this.types_cargo_supplied_6_months[c][2] ? GSText.STR_CHECKMARK : GSText.STR_CROSSMARK;
+		local cargo_delivered_3 = this.types_cargo_supplied_6_months[c][3] ? GSText.STR_CHECKMARK : GSText.STR_CROSSMARK;
+		local cargo_delivered_4 = this.types_cargo_supplied_6_months[c][4] ? GSText.STR_CHECKMARK : GSText.STR_CROSSMARK;
+		local cargo_delivered_5 = this.types_cargo_supplied_6_months[c][5] ? GSText.STR_CHECKMARK : GSText.STR_CROSSMARK;
+
+		text.AddParam(
+			GSText(GSText["STR_DELIVERY_" + c],
+				GSText(cargo_delivered_0),
+				GSText(cargo_delivered_1),
+				GSText(cargo_delivered_2),
+				GSText(cargo_delivered_3),
+				GSText(cargo_delivered_4),
+				GSText(cargo_delivered_5)
+			));
+	}
+
+	return text;
 }
 
 /*
@@ -223,7 +322,7 @@ function GoalTown::EternalLove(rating) {
 
 function GoalTown::UpdateSignTexxt() {
 	// Add a sign by the town to display the current growth
-    /*
+	/*
 	if (::SettingsTable.use_town_sign) {
 		local sign_text = TownSignText();
 		if (GSSign.IsValidSign(this.sign_id)) {
@@ -246,19 +345,18 @@ function GoalTown::RemoveSignText() {
 }
 
 
-function GoalTown::UpdateTownText(info_mode) {
+function GoalTown::UpdateTownText() {
 	GSTown.SetText(this.id, this.TownBoxText());
 }
 
-function GetCargoIDFromLabel(label)
-{
-    local cargos = GSCargoList();
+function GetCargoIDFromLabel(label) {
+	local cargos = GSCargoList();
 
-    for (local c = cargos.Begin(); !cargos.IsEnd(); c = cargos.Next()) {
-        if (GSCargo.GetCargoLabel(c) == label) {
-            return c;
-        }
-    }
+	for (local c = cargos.Begin(); !cargos.IsEnd(); c = cargos.Next()) {
+		if (GSCargo.GetCargoLabel(c) == label) {
+			return c;
+		}
+	}
 
-    return -1;
+	return -1;
 }

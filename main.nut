@@ -116,7 +116,7 @@ function MainClass::Start() {
 		if (this.actual_town_info_mode != town_info_mode) {
 			this.actual_town_info_mode = town_info_mode;
 			foreach(town in this.towns) {
-				town.UpdateTownText(this.actual_town_info_mode);
+				town.UpdateTownText();
 			}
 			continue;
 		}
@@ -126,7 +126,7 @@ function MainClass::Start() {
 			past_system_time = system_time;
 
 			foreach(town in this.towns) {
-				town.UpdateTownText(this.actual_town_info_mode);
+				town.UpdateTownText();
 			}
 		}
 
@@ -412,7 +412,7 @@ function MainClass::ManageTowns() {
 
 			town.MonthlyManageTown();
 			if (this.actual_town_info_mode > 1) {
-				town.UpdateTownText(this.actual_town_info_mode);
+				town.UpdateTownText();
 			}
 
 			if (eternal_love > 0) {

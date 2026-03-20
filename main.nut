@@ -39,7 +39,6 @@ class MainClass extends GSController {
 	actual_town_info_mode = null;
 	toy_lib = null;
 	story_editor = null;
-	passenger_network = null;
 
 	constructor() {
 		this.companies = [];
@@ -57,7 +56,7 @@ class MainClass extends GSController {
 		::TownDataTable <- {};
 		::CompanyDataTable <- {};
 		::SettingsTable <- {};
-		this.passenger_network = PassengerNetwork();
+		::PassengerNetwork <- PassengerNetwork();
 	}
 }
 
@@ -398,9 +397,9 @@ function MainClass::ManageTowns() {
 		Log.Info("Starting Monthly Updates...", Log.LVL_INFO);
 
 		// Station list update
-		this.passenger_network.UpdateStationList();
-		if (!this.passenger_network.initialized) {
-			this.passenger_network.InitFromHQ();
+		::PassengerNetwork.UpdateStationList();
+		if (!::PassengerNetwork.initialized) {
+			::PassengerNetwork.InitFromHQ();
 		}
         // Set eternal love
 		local eternal_love = GSController.GetSetting("eternal_love");
@@ -429,7 +428,7 @@ function MainClass::ManageTowns() {
 				town.EternalLove(eternal_love_rating);
 			}
 
-			this.passenger_network.TryAddTown(town.id);
+			::PassengerNetwork.TryAddTown(town.id);
 		}
 
 		this.current_month = month;

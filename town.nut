@@ -234,7 +234,9 @@ function GoalTown::SetCargoGoal() {
 
 
 function GoalTown::TownBoxText() {
-	local t = GSTown.GetName(this.id);
+	if (!::PassengerNetwork.IsTownInNetwork(this.id)) {
+		return GSText(GSText.STR_TOWN_NOT_IN_NETWORK);
+	}
 
 	local cargo_strings = [
 		"BEER",

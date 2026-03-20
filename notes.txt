@@ -1,0 +1,17 @@
+- 0 Growth if no passengers (don't care about mail)
+- Simplify config options
+- Support FIRS only
+- Error if distribution of passengers is manual
+- Logic to ensure only one network
+    - Enforce place HQ at the start
+        - If not placed, no Growth
+        - Note on multiplayer Support
+    - Build a list of towns already connected
+    - If a town has a station with a rating for passengers which isn't connected
+        - Build a graph using vehicle orders (filter vehicles for passengers first)
+        - If no vehicle visits station, exit
+        - Try BFS to reach a connected town
+    - Add connected town to in-memory list
+    - Save list of connected towns
+- Refactor to add a class for cargo list
+- Re-enable subsidies logic

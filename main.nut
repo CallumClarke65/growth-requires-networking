@@ -3,8 +3,8 @@ require("version.nut");
 //require("cargo.nut");
 //require("industry.nut");
 require("town.nut");
-//require("company.nut");
-//require("subsidies.nut")
+require("passenger_network.nut");
+require("station.nut");
 //require("story.nut");
 require("strings.nut");
 
@@ -39,6 +39,7 @@ class MainClass extends GSController {
 	actual_town_info_mode = null;
 	toy_lib = null;
 	story_editor = null;
+	passenger_network = null;
 
 	constructor() {
 		this.companies = [];
@@ -52,7 +53,11 @@ class MainClass extends GSController {
 		this.load_saved_data = false;
 		this.actual_town_info_mode = 0;
 		this.toy_lib = null;
-		this.story_editor = null;::TownDataTable <- {};::CompanyDataTable <- {};::SettingsTable <- {};
+		this.story_editor = null;
+		::TownDataTable <- {};
+		::CompanyDataTable <- {};
+		::SettingsTable <- {};
+		this.passenger_network = PassengerNetwork();
 	}
 }
 
@@ -392,6 +397,11 @@ function MainClass::ManageTowns() {
 		local month_tick = GSController.GetTick();
 		Log.Info("Starting Monthly Updates...", Log.LVL_INFO);
 
+		// Station list update
+		this.passenger_network.UpdateStationList();
+		if (!this.passenger_network.initialized) {
+			this.passenger_network.InitFromHQ();
+		}
         // Set eternal love
 		local eternal_love = GSController.GetSetting("eternal_love");
 		local eternal_love_rating = 0;
@@ -418,6 +428,8 @@ function MainClass::ManageTowns() {
 			if (eternal_love > 0) {
 				town.EternalLove(eternal_love_rating);
 			}
+
+			this.passenger_network.TryAddTown(town.id);
 		}
 
 		this.current_month = month;

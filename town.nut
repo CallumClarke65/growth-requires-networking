@@ -24,7 +24,7 @@ class GoalTown {
 
 			this.DisableOrigCargoGoal();
 
-			this.cargo_goal = this.SetCargoGoal();
+			this.SetCargoGoal();
 			this.total_cargo_supplied_6_months = [0, 0, 0, 0, 0, 0];
 			this.types_cargo_supplied_6_months = {};
 			this.types_cargo_count = 0;
@@ -38,7 +38,7 @@ class GoalTown {
 				"PETR"
 			];
 
-			foreach (c in cargo_strings) {
+			foreach(c in cargo_strings) {
 				this.types_cargo_supplied_6_months[c] <- [false, false, false, false, false, false];
 			}
 
@@ -175,12 +175,6 @@ function GoalTown::DoGrowthCheck() {
 		"PETR"
 	];
 
-	// Did we meet the cargo goal for this month?
-	if (this.total_cargo_supplied_6_months[0] < this.cargo_goal) {
-		GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
-		return;
-	}
-
 	// Check how many unique final products were supplied in the last month
 	local unique_cargos = 0;
 	foreach(c in cargo_strings) {
@@ -212,11 +206,24 @@ function GoalTown::DoGrowthCheck() {
 			break;
 	}
 
+	// Did we meet the cargo goal for this month?
+	if (this.total_cargo_supplied_6_months[0] < this.cargo_goal) {
+		if (unique_cargos == 0 && GSTown.GetPopulation(this.id) < this.growthLimit) {
+			GSTown.SetGrowthRate(this.id, GSController.GetSetting("growth_rate"));
+			return;
+		} else {
+			GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
+			return;
+		}
+	}
+
 	// If we are under the growth limit, or growth is not limited, allow growth. Otherwise, disable it.
 	if (this.growthLimit == -1 || GSTown.GetPopulation(this.id) < this.growthLimit) {
 		GSTown.SetGrowthRate(this.id, GSController.GetSetting("growth_rate"));
+		return;
 	} else {
 		GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
+		return;
 	}
 }
 

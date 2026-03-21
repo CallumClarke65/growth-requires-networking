@@ -167,6 +167,18 @@ function GoalTown::UpdateDeliveredCargoTotals() {
 }
 
 function GoalTown::DoGrowthCheck() {
+	// If there is no passenger network, the town can't grow
+	if (!::PassengerNetwork.initialized) {
+		GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
+		return;
+	}
+
+	// If the town is not connected to the passenger network, it can't grow
+	if (!::PassengerNetwork.IsTownInNetwork(this.id)) {
+		GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
+		return;
+	}
+
 	local cargo_strings = [
 		"BEER",
 		"GOOD",
@@ -232,11 +244,22 @@ function GoalTown::SetCargoGoal() {
 	this.cargo_goal = (cargo_goal_per_thousand * GSTown.GetPopulation(this.id)) / 1000;
 }
 
-
 function GoalTown::TownBoxText() {
-	if (!::PassengerNetwork.IsTownInNetwork(this.id)) {
-		return GSText(GSText.STR_TOWN_NOT_IN_NETWORK);
+	// We have three scenarios-
+	// 1. There is no passenger network- no growth
+	// 2. The town is not connected to the network- no growth
+	// 3. The town is in the network- growth mechanics enabled
+
+	// Case 1: no passenger network
+	if (!::PassengerNetwork.initialized) {
+		return GSText(GSText["STR_NO_NETWORK"], GSCompany.GetName(GSCompany.COMPANY_FIRST));
 	}
+
+	// Case 2: town not connected to the network
+	if (!::PassengerNetwork.IsTownInNetwork(this.id)) {
+		return GSText(GSText["STR_TOWN_NOT_IN_NETWORK"], GSTown.GetName(::PassengerNetwork.origin_id));
+	}
+
 
 	local cargo_strings = [
 		"BEER",
@@ -278,39 +301,6 @@ function GoalTown::TownBoxText() {
 	return text;
 }
 
-/*
-Cargo Goal: 50/240
-
-Growth limit: 1000 (X cargos provided)
-
-Delivery History (6 months):
-Total - 50/48/27/73/0/0
-Alcohol - ✓X✓✓✓✓
-Goods - ✓✓✓✓✓✓
-Food - ✓X✓✓✓✓
-Building Materials - XXXXXX
-Petrol - ✓X✓X✓X
-*/
-
-
-/*
-Population: X Houses: Y
-Passengers last month: X max: Y
-Mail last month: X max: Y
-Town is NOT growing
-
-Connect a passenger service to X to enable growth
-*/
-
-/*
-Population: X Houses: Y
-Passengers last month: X max: Y
-Mail last month: X max: Y
-Town is NOT growing
-
-Place X's HQ to enable growth mechanics
-*/
-
 function GoalTown::EternalLove(rating) {
 	for (local c = GSCompany.COMPANY_FIRST; c <= GSCompany.COMPANY_LAST; c++) {
 		if (!GSTown.IsValidTown(this.id))
@@ -328,31 +318,6 @@ function GoalTown::EternalLove(rating) {
 			GSTown.ChangeRating(this.id, c, rating - cur_rating);
 	}
 }
-
-function GoalTown::UpdateSignTexxt() {
-	// Add a sign by the town to display the current growth
-	/*
-	if (::SettingsTable.use_town_sign) {
-		local sign_text = TownSignText();
-		if (GSSign.IsValidSign(this.sign_id)) {
-			GSSign.SetName(this.sign_id, sign_text);
-		} else {
-			this.sign_id = GSSign.BuildSign(GSTown.GetLocation(this.id), sign_text);
-		}
-	}
-    */
-}
-
-function GoalTown::RemoveSignText() {
-	// Cleaning signs on the map
-	if (::SettingsTable.use_town_sign && GSSign.IsValidSign(this.sign_id)) {
-		GSSign.RemoveSign(this.sign_id);
-		this.sign_id = -1;
-	}
-
-	GSTown.SetText(this.id, this.TownBoxText());
-}
-
 
 function GoalTown::UpdateTownText() {
 	GSTown.SetText(this.id, this.TownBoxText());

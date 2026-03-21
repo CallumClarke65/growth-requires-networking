@@ -122,6 +122,8 @@ function PassengerNetwork::AddTown(town_id) {
 }
 
 function PassengerNetwork::InitFromHQ() {
+	Log.Info("Attempting to initialize passenger network from the town where " + GSCompany.GetName(GSCompany.COMPANY_FIRST) + "'s HQ is located...", Log.LVL_INFO);
+
 	// Look for company[0]'s HQ station, and use that as the origin of the network
 	local hq_tile = GSCompany.GetCompanyHQ(GSCompany.COMPANY_FIRST)
 

@@ -2,7 +2,7 @@
 require("version.nut");
 //require("cargo.nut");
 //require("industry.nut");
-require("town.nut");
+require("goal_town.nut");
 require("passenger_network.nut");
 require("station.nut");
 //require("story.nut");

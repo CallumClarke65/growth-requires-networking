@@ -130,4 +130,5 @@ STR_DELIVERY_PETR       :{SILVER}PETR{BLACK} - {STRING} {STRING} {STRING} {STRIN
 STR_CHECKMARK           :{CHECKMARK}
 STR_CROSSMARK           :X      
 
-STR_TOWN_NOT_IN_NETWORK :Oopsie Woopsie!
+STR_NO_NETWORK       :Place {ORANGE}{RAW_STRING}{BLACK}'s company HQ in any town to enable growth mechanics
+STR_TOWN_NOT_IN_NETWORK :Connect to the {ORANGE}passenger network{BLACK} originating in {ORANGE}{RAW_STRING}{BLACK} to enable growth

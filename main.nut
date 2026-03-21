@@ -1,6 +1,6 @@
 
 require("version.nut");
-//require("cargo.nut");
+require("cargo_list.nut");
 //require("industry.nut");
 require("goal_town.nut");
 require("passenger_network.nut");
@@ -57,6 +57,7 @@ class MainClass extends GSController {
 		::CompanyDataTable <- {};
 		::SettingsTable <- {};
 		::PassengerNetwork <- PassengerNetwork();
+		::CargoList <- CargoList();
 	}
 }
 
@@ -163,11 +164,9 @@ function MainClass::Init() {
 	this.current_month = GSDate.GetMonth(this.current_date);
 	this.current_year = GSDate.GetYear(this.current_date);
 
-	/*
-	if (!InitCargoLists()) {
+	if (!::CargoList.Init()) {
 		return InitError.CARGO_LIST;
 	}
-	*/
 
 	/* Check whether saved data are in the current save
 	 * format.
@@ -366,7 +365,6 @@ function MainClass::CreateTownList() {
  * since we never use the array index, only its values.
  */
 function MainClass::UpdateTownList(town_id) {
-	// Create list of cargos/industries near each town
 	this.towns.append(GoalTown(town_id, false));
 	Log.Info("New town founded: " + GSTown.GetName(town_id) + " (id: " + town_id + ")", Log.LVL_DEBUG);
 }

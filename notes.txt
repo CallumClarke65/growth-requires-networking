@@ -1,8 +1,6 @@
 - 0 Growth if no passengers (don't care about mail)
-- Simplify config options
 - Support FIRS only
 - Error if distribution of passengers is manual
-- Refactor to add a class for cargo list
 - Re-enable subsidies logic
 - Save properly
 - Re-init network from save files

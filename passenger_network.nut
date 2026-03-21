@@ -28,7 +28,7 @@ function PassengerNetwork::UpdateStationList() {
 	local station_list = GSStationList(GSStation.STATION_ANY);
 
 	foreach(s, _ in station_list) {
-		// Check if already exists
+		// Check if we already have this station in our list
 		local exists = false;
 		foreach(st in this.stations) {
 			if (st.station_id == s) {
@@ -47,9 +47,8 @@ function PassengerNetwork::UpdateStationList() {
 }
 
 function PassengerNetwork::TryAddTown(town_id) {
-	// If the town is already in the network, we don't need to do anything
+	// If the town is already in the network, just make sure all of its stations are connected to the network and return
 	if (this.IsTownInNetwork(town_id)) {
-		Log.Info("Town " + GSTown.GetName(town_id) + " is already in the network, skipping", Log.LVL_INFO);
 		this.ConnectTownStations(town_id);
 		return;
 	}
@@ -70,25 +69,15 @@ function PassengerNetwork::TryAddTown(town_id) {
 		this_towns_passenger_stations.append(station);
 	}
 
-	/*
-	if (this_towns_passenger_stations.len() > 0) {
-		Log.Info("Passenger stations in town " + GSTown.GetName(town_id) + ": " + this_towns_passenger_stations.len(), Log.LVL_INFO);
-	}
-		*/
-
 	// Now look for vehicles that service the passenger stations in this town
 	// If those vehicles also service stations in the network, then we can add this town to the network
 	foreach (s in this_towns_passenger_stations) {
 		local vehicles = GSVehicleList_Station(s.station_id);
+
 		foreach(v, _ in vehicles) {
-			//Log.Info("Vehicle " + v + " (" + GSVehicle.GetName(v) + ")", Log.LVL_INFO);
 			local all_stations__that_v_visits = GSStationList_Vehicle(v)
 
 			foreach(st, _ in all_stations__that_v_visits) {
-
-				Log.Info("Station " + st + " (" + GSStation.GetName(st) + ") is serviced by vehicle " + v + " (" + GSVehicle.GetName(v) + ")", Log.LVL_INFO);
-				Log.Info("Is station " + st + " in the network? " + (st in this.connected_station_ids), Log.LVL_INFO);
-
 				if (st in this.connected_station_ids) {
 					// We found:
 					// - a station in the town that has a passenger rating
@@ -103,7 +92,6 @@ function PassengerNetwork::TryAddTown(town_id) {
 							this.connected_station_ids[st2] <- true;
 						}
 					}
-					//Log.Info("Vehicle " + v + " services station " + st + " which is part of the network, and also services station " + s.station_id + " in town " + GSTown.GetName(town_id) + ", so we can add this town to the network", Log.LVL_INFO);
 
 					this.AddTown(town_id);
 					return;
@@ -139,7 +127,7 @@ function PassengerNetwork::InitFromHQ() {
 		return;
 	}
 
-	Log.Info("Initializing passenger network from " + GSCompany.GetName(GSCompany.COMPANY_FIRST) + " HQ in town " + GSTown.GetName(town_id), Log.LVL_INFO);
+	Log.Info("Initializing passenger network from " + GSCompany.GetName(GSCompany.COMPANY_FIRST) + " HQ in " + GSTown.GetName(town_id), Log.LVL_INFO);
 
 	this.origin_id = town_id;
 	this.town_ids[town_id] <- true;

@@ -35,6 +35,14 @@ function CargoList::Init() {
 	return true;
 }
 
+function CargoList::GetCount() {
+    local count = 0;
+    foreach (k, v in this.cargo_ids) {
+        count++;
+    }
+    return count;
+}
+
 function GetCargoIDFromLabel(label) {
 	local cargos = GSCargoList();
 

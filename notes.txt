@@ -1,5 +1,3 @@
-- 0 Growth if no passengers (don't care about mail)
-- Support FIRS only
 - Error if distribution of passengers is manual
 - Re-enable subsidies logic
 - Save properly

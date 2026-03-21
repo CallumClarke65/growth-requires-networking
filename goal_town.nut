@@ -239,7 +239,11 @@ function GoalTown::TownBoxText() {
 		return GSText(GSText["STR_TOWN_NOT_IN_NETWORK"], GSTown.GetName(::PassengerNetwork.origin_id));
 	}
 
-	local text = GSText(GSText.STR_FULL_DISPLAY);
+	// Case 3: town in the network, show growth mechanics info
+
+	// Depending on the version of FIRS, we might have 3, 4, or 5 cargo types to display
+	local text_key = "STR_FULL_DISPLAY_" + ::CargoList.GetCount();
+	local text = GSText(GSText[text_key]);
 
 	text.AddParam(GSText(GSText["STR_CARGO_DELIVERED"], this.total_cargo_supplied_6_months[0], this.cargo_goal)); // Cargo Goal: X / Y
 	text.AddParam(GSText(GSText["STR_GROWTH_LIMIT"], this.growthLimit, this.types_cargo_count)); // Growth limit: X (Y cargos provided)

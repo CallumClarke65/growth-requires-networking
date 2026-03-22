@@ -1,12 +1,10 @@
 
 require("version.nut");
 require("cargo_list.nut");
-//require("industry.nut");
 require("goal_town.nut");
 require("passenger_network.nut");
 require("station.nut");
 //require("story.nut");
-require("strings.nut");
 
 // Import SuperLib for GameScript
 import("util.superlib", "SuperLib", 40);
@@ -36,7 +34,6 @@ class MainClass extends GSController {
 	gs_init_done = null;
 	load_saved_data = null;
 	current_save_version = null;
-	actual_town_info_mode = null;
 	toy_lib = null;
 	story_editor = null;
 
@@ -50,7 +47,6 @@ class MainClass extends GSController {
 		this.gs_init_done = false;
 		this.current_save_version = SELF_MAJORVERSION; // Ensures compatibility between revisions
 		this.load_saved_data = false;
-		this.actual_town_info_mode = 0;
 		this.toy_lib = null;
 		this.story_editor = null;
 		::TownDataTable <- {};
@@ -115,26 +111,7 @@ function MainClass::Start() {
 	}
 
 	// Main loop
-	local past_system_time = GSDate.GetSystemTime();
 	while (true) {
-		local town_info_mode = GSController.GetSetting("town_info_mode");
-		if (this.actual_town_info_mode != town_info_mode) {
-			this.actual_town_info_mode = town_info_mode;
-			foreach(town in this.towns) {
-				town.UpdateTownText();
-			}
-			continue;
-		}
-
-		local system_time = GSDate.GetSystemTime();
-		if (1 == this.actual_town_info_mode && system_time - past_system_time > 3) {
-			past_system_time = system_time;
-
-			foreach(town in this.towns) {
-				town.UpdateTownText();
-			}
-		}
-
 		this.HandleEvents();
 		this.ManageTowns();
 	}
@@ -414,13 +391,10 @@ function MainClass::ManageTowns() {
 				break;
 		}
 
-		local threshold_setting = GSController.GetSetting("town_size_threshold");
 		foreach(town in this.towns) {
 
 			town.MonthlyManageTown();
-			if (this.actual_town_info_mode > 1) {
-				town.UpdateTownText();
-			}
+			town.UpdateTownText();
 
 			if (eternal_love > 0) {
 				town.EternalLove(eternal_love_rating);

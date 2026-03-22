@@ -26,7 +26,7 @@ class MainClass extends GSInfo
     function GetSettings() {
 
         AddSetting({ name = "goal_per_thousand_pop",
-                description = "Monthly cargo goal per thousand population (easy = 100, normal = 200, hard = 300)",
+                description = "Monthly cargo goal per thousand population",
                 easy_value = 100,
                 medium_value = 200,
                 hard_value = 300,
@@ -34,15 +34,23 @@ class MainClass extends GSInfo
                 flags = CONFIG_INGAME, min_value = 1, max_value = 50000, step_size = 20 });
 
         AddSetting({ name = "growth_rate",
-                description = "Days between town growth cycles when growing is enabled (easy = 10, normal = 20, hard = 30)",
+                description = "Days between town growth cycles when growing is enabled",
                 easy_value = 10,
                 medium_value = 20,
                 hard_value = 30,
                 custom_value = 20,
-                flags = CONFIG_INGAME, min_value = 10, max_value = 30, step_size = 2 });
+                flags = CONFIG_INGAME, min_value = 2, max_value = 30, step_size = 2 });
+
+        AddSetting({ name = "city_min_growth_rate",
+                description = "Days between city growth cycles when the city is connected to the network but not otherwise growing",
+                easy_value = 180,
+                medium_value = 365,
+                hard_value = 730,
+                custom_value = 365,
+                flags = CONFIG_INGAME, min_value = 180, max_value = 730, step_size = 2 });
 
         AddSetting({ name = "growth_limit_0_cargos",
-                description = "Max population allowed with 0 final product cargo types supplied (easy = 1000, normal = 500, hard = 250)",
+                description = "Max population allowed with 0 final product cargo types supplied",
                 easy_value = 1000,
                 medium_value = 500,
                 hard_value = 250,
@@ -50,7 +58,7 @@ class MainClass extends GSInfo
                 flags = CONFIG_INGAME, min_value = -1, max_value = 50000, step_size = 100 });
 
         AddSetting({ name = "growth_limit_1_cargos",
-                description = "Max population allowed with 1 final product cargo type supplied (easy = 1500, normal = 1000, hard = 500)",
+                description = "Max population allowed with 1 final product cargo type supplied",
                 easy_value = 1500,
                 medium_value = 1000,
                 hard_value = 500,
@@ -58,7 +66,7 @@ class MainClass extends GSInfo
                 flags = CONFIG_INGAME, min_value = -1, max_value = 50000, step_size = 100 });
 
         AddSetting({ name = "growth_limit_2_cargos",
-                description = "Max population allowed with 2 final product cargo types supplied (easy = 3000, normal = 2000, hard = 800)",
+                description = "Max population allowed with 2 final product cargo types supplied",
                 easy_value = 3000,
                 medium_value = 2000,
                 hard_value = 800,
@@ -66,7 +74,7 @@ class MainClass extends GSInfo
                 flags = CONFIG_INGAME, min_value = -1, max_value = 50000, step_size = 100 });
 
         AddSetting({ name = "growth_limit_3_cargos",
-                description = "Max population allowed with 3 final product cargo types supplied (easy = 10000, normal = 5000, hard = 2000)",
+                description = "Max population allowed with 3 final product cargo types supplied",
                 easy_value = 10000,
                 medium_value = 5000,
                 hard_value = 2000,
@@ -74,7 +82,7 @@ class MainClass extends GSInfo
                 flags = CONFIG_INGAME, min_value = -1, max_value = 50000, step_size = 100 });
 
         AddSetting({ name = "growth_limit_4_cargos",
-                description = "Max population allowed with 4 final product cargo types supplied (easy = 20000, normal = 10000, hard = 5000, no limit = -1)",
+                description = "Max population allowed with 4 final product cargo types supplied",
                 easy_value = 20000,
                 medium_value = 10000,
                 hard_value = 5000,

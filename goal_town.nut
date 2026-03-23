@@ -210,7 +210,12 @@ function GoalTown::DoGrowthCheck() {
 
 	// If we're a city that isn't otherwise growing, we can grow per the minimum growth rate for connected cities
 	if (GSTown.IsCity(this.id)) {
-		GSTown.SetGrowthRate(this.id, GSController.GetSetting("city_min_growth_rate"));
+		local city_min_growth_rate = GSController.GetSetting("city_min_growth_rate");
+		if (city_min_growth_rate > 0) {
+			GSTown.SetGrowthRate(this.id, GSController.GetSetting("city_min_growth_rate"));
+		} else {
+			GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
+		}
 		return;
 	}
 }

@@ -45,9 +45,9 @@ class MainClass extends GSInfo
                 description = "Days between city growth cycles when the city is connected to the network but not otherwise growing",
                 easy_value = 180,
                 medium_value = 365,
-                hard_value = 730,
+                hard_value = 0,
                 custom_value = 365,
-                flags = CONFIG_INGAME, min_value = 180, max_value = 730, step_size = 2 });
+                flags = CONFIG_INGAME, min_value = 0, max_value = 730, step_size = 2 });
 
         AddSetting({ name = "growth_limit_0_cargos",
                 description = "Max population allowed with 0 final product cargo types supplied",

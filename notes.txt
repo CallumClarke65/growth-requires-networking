@@ -1,5 +1,2 @@
-- Error if distribution of passengers is manual
-- Re-enable subsidies logic
 - Save properly
 - Re-init network from save files
-- Story book

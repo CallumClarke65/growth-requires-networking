@@ -4,12 +4,11 @@ require("cargo_list.nut");
 require("goal_town.nut");
 require("passenger_network.nut");
 require("station.nut");
-//require("story.nut");
+require("story_editor.nut");
 
 // Import SuperLib for GameScript
 import("util.superlib", "SuperLib", 40);
 Log <- SuperLib.Log;
-Helper <- SuperLib.Helper;
 
 // Import ToyLib
 import("Library.GSToyLib", "GSToyLib", 2);
@@ -17,15 +16,12 @@ import("Library.SCPLib", "SCPLib", 45);
 
 enum InitError {
 	NONE,
-	CARGO_LIST,
-	INDUSTRY_LIST,
 	TOWN_NUMBER,
-	TOWN_GROWTH_RATE,
-	PAX_CARGO_DIST
+	PAX_CARGO_DIST,
+	INFRASTRUCTURE_SHARING
 }
 
 class MainClass extends GSController {
-	companies = null;
 	towns = null;
 	current_date = null;
 	current_week = null;
@@ -38,7 +34,6 @@ class MainClass extends GSController {
 	story_editor = null;
 
 	constructor() {
-		this.companies = [];
 		this.towns = [];
 		this.current_date = 0;
 		this.current_week = 0;
@@ -50,7 +45,6 @@ class MainClass extends GSController {
 		this.toy_lib = null;
 		this.story_editor = null;
 		::TownDataTable <- {};
-		::CompanyDataTable <- {};
 		::SettingsTable <- {};
 		::PassengerNetwork <- PassengerNetwork();
 		::CargoList <- CargoList();
@@ -64,29 +58,6 @@ function MainClass::Start() {
 
 	// Initializing the script
 	local start_tick = GSController.GetTick();
-
-	// Read the openttd.cfg Town Growth Rate setting first.
-	// If the map is set to disallow town growth at all, this script
-	// won't do anything further.
-	if (GSGameSettings.IsValid("town_growth_rate")) {
-		if (!GSGameSettings.GetValue("town_growth_rate")) {
-			GSLog.Error("You must set town growth in advanced setting to something other than None. This script is now exiting!");
-			//this.story_editor = StoryEditor();
-			//this.story_editor.CreateStoryBook([], 0, InitError.TOWN_GROWTH_RATE);
-			return;
-		}
-	}
-
-	/*
-	// Check that cargo distribution is enabled for Passengers
-	if (GSCargo.GetDistributionType("PASS") == GSCargo.DT_MANUAL) {
-		GSLog.Info(GSCargo.GetDistributionType("PASS"));
-		GSLog.Error("Passenger Cargo Distribution must not be set to Manual. This script is now exiting!");
-		//this.story_editor = StoryEditor();
-		//this.story_editor.CreateStoryBook([], 0, InitError.PAX_CARGO_DIST);
-		return;
-	}
-	*/
 
 	GSGame.Pause();
 	Log.Info("Script initialisation...", Log.LVL_INFO);
@@ -102,8 +73,8 @@ function MainClass::Start() {
 	GSController.Sleep(1);
 
 	// Create and fill StoryBook. This can't be done before OTTD is ready.
-	//this.story_editor = StoryEditor();
-	//this.story_editor.CreateStoryBook(this.companies, this.towns.len(), init_error);
+	this.story_editor = StoryEditor();
+	this.story_editor.CreateStoryBook(this.towns.len(), init_error);
 
 	if (!this.gs_init_done) {
 		GSLog.Error("Game initialisation failed. This script is now exiting!");
@@ -122,7 +93,8 @@ function MainClass::Init() {
 
 	// Check game settings
 	GSGameSettings.SetValue("economy.town_growth_rate", 2);
-	GSGameSettings.SetValue("economy.fund_buildings", 0);::SettingsTable.wallclock_timekeeping <- GSGameSettings.GetValue("economy.timekeeping_units");
+	GSGameSettings.SetValue("economy.fund_buildings", 0);
+	::SettingsTable.wallclock_timekeeping <- GSGameSettings.GetValue("economy.timekeeping_units");
 
 	if (!this.load_saved_data) { // Disallow changing these in a running game
 		/*
@@ -141,8 +113,15 @@ function MainClass::Init() {
 	this.current_month = GSDate.GetMonth(this.current_date);
 	this.current_year = GSDate.GetYear(this.current_date);
 
-	if (!::CargoList.Init()) {
-		return InitError.CARGO_LIST;
+	// Do initialization checks and return if they fail
+	::CargoList.Init()
+
+	if (!this.CheckPassCargoDistribution()) {
+		return InitError.PAX_CARGO_DIST;
+	}
+
+	if (!this.CheckInfrastructureSharing()) {
+		return InitError.INFRASTRUCTURE_SHARING;
 	}
 
 	/* Check whether saved data are in the current save
@@ -151,10 +130,6 @@ function MainClass::Init() {
 	if (!this.load_saved_data) {
 		//Helper.ClearAllSigns();
 	}
-
-	// Create company list
-	Log.Info("Creating company list ...", Log.LVL_INFO);
-	//this.companies = this.CreateCompanyList();
 
 	// Create the towns list
 	Log.Info("Creating town list ... (can take a while on large maps)", Log.LVL_INFO);
@@ -207,7 +182,6 @@ function MainClass::Save() {
 	 * from GoalTown instances. Thus, simply use the original
 	 * loaded table. Otherwise we build the table with town data.
 	 */
-	save_table.company_data_table <- {};
 	save_table.town_data_table <- {};
 	if (!this.gs_init_done) {
 		save_table.town_data_table <- ::TownDataTable;
@@ -220,10 +194,6 @@ function MainClass::Save() {
 		save_table.cargo_6_category <- ::SettingsTable.cargo_6_category;
 		save_table.category_min_pop <- ::SettingsTable.category_min_pop;
 		*/
-
-		foreach(company in this.companies) {
-			save_table.company_data_table[company.id] <- company.SavingCompanyData();
-		}
 
 		local start_opcodes = GSController.GetOpsTillSuspend();
 		foreach(i, town in this.towns) {
@@ -243,68 +213,12 @@ function MainClass::Load(version, saved_data) {
 	if ((saved_data.rawin("save_version") && saved_data.save_version == this.current_save_version)) {
 		this.load_saved_data = true;::SettingsTable.use_town_sign <- saved_data.use_town_sign;::SettingsTable.randomization <- saved_data.randomization;::SettingsTable.display_cargo <- saved_data.display_cargo;::SettingsTable.cargo_6_category <- saved_data.cargo_6_category;::SettingsTable.category_min_pop <- saved_data.category_min_pop;
 
-		foreach(companyid, company_data in saved_data.company_data_table) {
-			::CompanyDataTable[companyid] <- company_data;
-		}
-
 		foreach(townid, town_data in saved_data.town_data_table) {
 			::TownDataTable[townid] <- town_data;
 		}
 	} else {
 		Log.Info("Save data format doesn't match with current version (saved " + saved_data.save_version + " vs current " + this.current_save_version + "). Resetting.", Log.LVL_INFO);
 	}
-}
-
-function MainClass::UpdateCompanyList() {
-	for (local c = GSCompany.COMPANY_FIRST; c <= GSCompany.COMPANY_LAST; c++) {
-		local existing = null;
-		local existing_idx = 0;
-		foreach(index, company in this.companies) {
-			if (company.id == c) {
-				existing = company;
-				existing_idx = index;
-				break;
-			}
-		}
-
-		if (GSCompany.ResolveCompanyID(c) == GSCompany.COMPANY_INVALID) {
-			if (existing != null) {
-				existing.RemoveGUIGoals();
-				this.companies.remove(existing_idx);
-			}
-
-			continue;
-		}
-
-		// If the company can be resolved and exists => do anything
-		if (existing != null) continue;
-
-		// Initialize new company
-		local company = Company(c, false);
-		this.companies.append(company);
-
-		if (this.story_editor != null)
-			this.story_editor.CreateNewCompanyStoryBook(company);
-	}
-}
-
-function MainClass::CreateCompanyList() {
-	this.companies = [];
-
-	// Create company list from saved data
-	if (this.load_saved_data && ::CompanyDataTable != null) {
-		foreach(company_id, company_data in ::CompanyDataTable) {
-			this.companies.append(Company(company_id, true));
-		}
-	}
-
-	// Now we can free ::CompanyDataTable
-	::CompanyDataTable = null;
-
-	// Update company list for created/bankrupted/merged
-	this.UpdateCompanyList();
-
-	return companies;
 }
 
 /* Make a squirrel array of GoalTown instances (towns_array). For each
@@ -357,8 +271,6 @@ function MainClass::ManageTowns() {
 		return;
 	} else {
 		GSToyLib.Check();
-		//this.story_editor.CheckParameters(this.companies);
-
 		this.current_date = date;
 	}
 
@@ -416,10 +328,35 @@ function MainClass::ManageTowns() {
 	else {
 		Log.Info("Starting Yearly Updates...", Log.LVL_INFO);
 
-		// CreateSubsidies(towns, companies);
-
+		// no-op
 		this.current_year = year;
 	}
+}
+
+function MainClass::CheckPassCargoDistribution() {
+	Log.Info("Checking passenger cargo distribution settings...", Log.LVL_INFO);
+	if (GSCargo.GetDistributionType(GetCargoIDFromLabel("PASS")) == GSCargo.DT_MANUAL) {
+		Log.Warning("Passenger Cargo Distribution must not be set to Manual", Log.LVL_INFO);
+		return false;
+	}
+	Log.Info("Check ok!", Log.LVL_INFO);
+	return true;
+}
+
+function MainClass::CheckInfrastructureSharing() {
+	if(GSGameSettings.IsValid("infrastructure_sharing[0]") && GSGame.IsMultiplayer()) {
+		Log.Info("Checking infrastructure sharing settings for multiplayer...", Log.LVL_INFO);
+		if (!GSGameSettings.GetValue("infrastructure_sharing[0]")
+			|| !GSGameSettings.GetValue("infrastructure_sharing[1]")
+			|| !GSGameSettings.GetValue("infrastructure_sharing[2]")
+			|| !GSGameSettings.GetValue("infrastructure_sharing[3]")
+ 		) {
+			Log.Warning("Infrastructure sharing must be enabled for this script to work in multiplayer", Log.LVL_INFO);
+			return false;
+		}
+	}
+	Log.Info("Check ok!", Log.LVL_INFO);
+	return true;
 }
 
 function Modulo(num, divisor) {

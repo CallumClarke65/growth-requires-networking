@@ -10,13 +10,22 @@ class PassengerNetwork {
 	stations = null; // Array of station objects that may or may not be part of the network
 	connected_station_ids = null; // Array of station ids that are part of the network (derived from stations array)
 
-	constructor() {
-		this.initialized = false;
-		this.origin_id = null;
-		this.town_ids = {};
-		this.stations = [];
-		this.connected_station_ids = {};
+	constructor(origin_id = null, town_ids = [], stations = [], connected_station_ids = []) {
+	this.initialized = origin_id != null;
+	this.origin_id = origin_id;
+
+	this.town_ids = {};
+	foreach (t in town_ids) {
+		this.town_ids[t] <- true;
 	}
+
+	this.stations = stations;
+
+	this.connected_station_ids = {};
+	foreach (s in connected_station_ids) {
+		this.connected_station_ids[s] <- true;
+	}
+}
 }
 
 function PassengerNetwork::IsTownInNetwork(town_id) {
@@ -141,4 +150,23 @@ function PassengerNetwork::ConnectTownStations(town_id) {
 			this.connected_station_ids[station.station_id] <- true;
 		}
 	}
+}
+
+function PassengerNetwork::GetSavableFormat() {
+	local town_id_list = [];
+	foreach (t, _ in this.town_ids) {
+		town_id_list.append(t);
+	}
+
+	local connected_station_list = [];
+	foreach (s, _ in this.connected_station_ids) {
+		connected_station_list.append(s);
+	}
+
+	// TODO - this should also return stations in a savable format so we can save re-building those objects in future
+	return {
+		origin_id = this.origin_id,
+		town_ids = town_id_list,
+		connected_station_ids = connected_station_list
+	};
 }

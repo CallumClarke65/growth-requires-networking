@@ -4,7 +4,6 @@
  */
 class GoalTown {
 	id = null; // Town id
-	sign_id = null; // Id for extra text under town name
 	cargo_goal = null; // Goal amount for growth next month
 	total_cargo_supplied_6_months = null; // Array with the amount of cargo supplied in the last 6 months
 	types_cargo_supplied_6_months = null; // Array with the types of cargo supplied in the last 6 months
@@ -20,7 +19,6 @@ class GoalTown {
 		 * initialize them. Otherwise, we load saved data.
 		 */
 		if (!load_town_data || this.id >= ::TownDataTable.len()) {
-			this.sign_id = -1;
 
 			this.DisableOrigCargoGoal();
 
@@ -42,9 +40,10 @@ class GoalTown {
 			} else
 				this.initialized = false;
 		} else {
-			this.sign_id = ::TownDataTable[this.id].sign_id;
 			this.cargo_goal = ::TownDataTable[this.id].cargo_goal;
 			this.total_cargo_supplied_6_months = ::TownDataTable[this.id].total_cargo_supplied_6_months;
+			this.types_cargo_supplied_6_months = ::TownDataTable[this.id].types_cargo_supplied_6_months;
+			this.types_cargo_count = ::TownDataTable[this.id].types_cargo_count;
 			this.growthLimit = ::TownDataTable[this.id].growthLimit;
 
 			this.initialized = true;
@@ -77,24 +76,13 @@ function GoalTown::DisableOrigCargoGoal() {
 
 /* Function called when saving the game. */
 function GoalTown::SavingTownData() {
-	/* IMPORTANT: if anything of the saved data changes here, we
-	 * need to update the MainClass.save_version flag in MainClass'
-	 * constructor.
-	 */
 	local town_data = {};
-	town_data.sign_id <- this.sign_id;
-	town_data.contributor <- this.contributor;
-	town_data.max_population <- this.max_population;
-	town_data.is_monitored <- this.is_monitored;
-	town_data.allowGrowth <- this.allowGrowth;
-	town_data.last_delivery <- this.last_delivery;
-	town_data.town_goals_cat <- this.town_goals_cat;
-	town_data.town_supplied_cat <- this.town_supplied_cat;
-	town_data.town_stockpiled_cat <- this.town_stockpiled_cat;
-	town_data.tgr_array <- this.tgr_array;
-	town_data.limit_transported <- this.limit_transported;
-	town_data.limit_delay <- this.limit_delay;
-	town_data.cargo_hash <- this.cargo_hash;
+	town_data.id <- this.id;
+	town_data.cargo_goal <- this.cargo_goal;
+	town_data.total_cargo_supplied_6_months <- this.total_cargo_supplied_6_months;
+	town_data.types_cargo_supplied_6_months <- this.types_cargo_supplied_6_months;
+	town_data.types_cargo_count <- this.types_cargo_count;
+	town_data.growthLimit <- this.growthLimit;
 	return town_data;
 }
 
@@ -198,12 +186,14 @@ function GoalTown::DoGrowthCheck() {
 
 	// If we are connected to the network and under growth_limit_0_cargos, we grow
 	if (::PassengerNetwork.IsTownInNetwork(this.id) && GSTown.GetPopulation(this.id) < GSController.GetSetting("growth_limit_0_cargos")) {
+		Log.Info(GSTown.GetName(this.id) + " (pop = " + GSTown.GetPopulation(this.id) + ") is connected to the network and below minimum limit (" + GSController.GetSetting("growth_limit_0_cargos") + ")", Log.LVL_INFO);
 		GSTown.SetGrowthRate(this.id, GSController.GetSetting("growth_rate"));
 		return;
 	}
 
 	// If we met the cargo goal and the town is under its growth limit (or there is no growth limit), we grow
 	if (this.total_cargo_supplied_6_months[0] >= this.cargo_goal && (GSTown.GetPopulation(this.id) < this.growthLimit || this.growthLimit == -1)) {
+		Log.Info(GSTown.GetName(this.id) + " met the cargo goal (" + this.total_cargo_supplied_6_months[0] + " / " + this.cargo_goal + ") and is below growth limit (" + (this.growthLimit == -1 ? "no limit" : this.growthLimit) + ")", Log.LVL_INFO);
 		GSTown.SetGrowthRate(this.id, GSController.GetSetting("growth_rate"));
 		return;
 	}
@@ -213,11 +203,15 @@ function GoalTown::DoGrowthCheck() {
 		local city_min_growth_rate = GSController.GetSetting("city_min_growth_rate");
 		if (city_min_growth_rate > 0) {
 			GSTown.SetGrowthRate(this.id, GSController.GetSetting("city_min_growth_rate"));
-		} else {
-			GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
+			Log.Info(GSTown.GetName(this.id) + " is a city and growing at the minimum rate (" + city_min_growth_rate + ")", Log.LVL_INFO);
 		}
 		return;
 	}
+
+	// If we didn't meet any of the conditions for growth, we don't grow
+	GSTown.SetGrowthRate(this.id, GSTown.TOWN_GROWTH_NONE);
+	Log.Info(GSTown.GetName(this.id) + " is not meeting any growth conditions.", Log.LVL_INFO);
+	return;
 }
 
 function GoalTown::SetCargoGoal() {

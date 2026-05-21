@@ -46,7 +46,6 @@ class MainClass extends GSController {
 		this.story_editor = null;
 		::TownDataTable <- {};
 		::SettingsTable <- {};
-		::PassengerNetwork <- PassengerNetwork();
 		::CargoList <- CargoList();
 	}
 }
@@ -96,18 +95,6 @@ function MainClass::Init() {
 	GSGameSettings.SetValue("economy.fund_buildings", 0);
 	::SettingsTable.wallclock_timekeeping <- GSGameSettings.GetValue("economy.timekeeping_units");
 
-	if (!this.load_saved_data) { // Disallow changing these in a running game
-		/*
-        ::SettingsTable.use_town_sign <- GSController.GetSetting("use_town_sign");::SettingsTable.randomization <- GSController.GetSetting("cargo_randomization");::SettingsTable.display_cargo <- GSController.GetSetting("display_cargo");::SettingsTable.cargo_6_category <- GSController.GetSetting("cargo_6_category");::SettingsTable.category_min_pop <- [GSController.GetSetting("category_1_min_pop"),
-			GSController.GetSetting("category_2_min_pop"),
-			GSController.GetSetting("category_3_min_pop"),
-			GSController.GetSetting("category_4_min_pop"),
-			GSController.GetSetting("category_5_min_pop"),
-			GSController.GetSetting("category_6_min_pop")
-		];
-        */
-	}
-
 	// Set current date
 	this.current_date = this.current_week = GSDate.GetCurrentDate();
 	this.current_month = GSDate.GetMonth(this.current_date);
@@ -124,11 +111,9 @@ function MainClass::Init() {
 		return InitError.INFRASTRUCTURE_SHARING;
 	}
 
-	/* Check whether saved data are in the current save
-	 * format.
-	 */
 	if (!this.load_saved_data) {
-		//Helper.ClearAllSigns();
+		// Without saved data, we need a new empty network
+		::PassengerNetwork <- PassengerNetwork();
 	}
 
 	// Create the towns list
@@ -183,23 +168,22 @@ function MainClass::Save() {
 	 * loaded table. Otherwise we build the table with town data.
 	 */
 	save_table.town_data_table <- {};
+
 	if (!this.gs_init_done) {
 		save_table.town_data_table <- ::TownDataTable;
 	} else {
-		// Save permanent settings (allows changing them in scenario editor)
-		/*
-		save_table.use_town_sign <- ::SettingsTable.use_town_sign;
-		save_table.randomization <- ::SettingsTable.randomization;
-		save_table.display_cargo <- ::SettingsTable.display_cargo;
-		save_table.cargo_6_category <- ::SettingsTable.cargo_6_category;
-		save_table.category_min_pop <- ::SettingsTable.category_min_pop;
-		*/
-
 		local start_opcodes = GSController.GetOpsTillSuspend();
 		foreach(i, town in this.towns) {
 			save_table.town_data_table[town.id] <- town.SavingTownData();
 		}
 		Log.Info("Opcodes per saved town = " + ((start_opcodes - GSController.GetOpsTillSuspend()) / this.towns.len()), Log.LVL_DEBUG);
+
+		// Save the passenger network
+		local passenger_network_format = ::PassengerNetwork.GetSavableFormat();
+		save_table.passenger_network_origin_id <- passenger_network_format.origin_id;
+		save_table.passenger_network_town_ids <- passenger_network_format.town_ids;
+		save_table.passenger_network_connected_station_ids <- passenger_network_format.connected_station_ids;
+
 		// Also store a savegame version flag
 		save_table.save_version <- this.current_save_version;
 	}
@@ -211,11 +195,19 @@ function MainClass::Load(version, saved_data) {
 	Log.Info("Loading data...", Log.LVL_INFO);
 	// Loading town data. Only load data if the savegame version matches.
 	if ((saved_data.rawin("save_version") && saved_data.save_version == this.current_save_version)) {
-		this.load_saved_data = true;::SettingsTable.use_town_sign <- saved_data.use_town_sign;::SettingsTable.randomization <- saved_data.randomization;::SettingsTable.display_cargo <- saved_data.display_cargo;::SettingsTable.cargo_6_category <- saved_data.cargo_6_category;::SettingsTable.category_min_pop <- saved_data.category_min_pop;
+		this.load_saved_data = true;
 
 		foreach(townid, town_data in saved_data.town_data_table) {
 			::TownDataTable[townid] <- town_data;
 		}
+
+		// Repopulate passenger network
+		::PassengerNetwork <- PassengerNetwork(
+			saved_data.passenger_network_origin_id,
+			saved_data.passenger_network_town_ids,
+			[],
+			saved_data.passenger_network_connected_station_ids);
+
 	} else {
 		Log.Info("Save data format doesn't match with current version (saved " + saved_data.save_version + " vs current " + this.current_save_version + "). Resetting.", Log.LVL_INFO);
 	}
